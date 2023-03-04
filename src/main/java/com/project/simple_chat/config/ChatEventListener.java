@@ -12,7 +12,9 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+
 import java.awt.*;
+import java.sql.Timestamp;
 
 
 @Component
@@ -24,9 +26,10 @@ public class ChatEventListener {
     @Autowired
     private SimpMessageSendingOperations sendingOperations;
 
+    //EventListeners for handling incoming connections
     @EventListener
     public void handleWebSocketConnectListener(final SessionConnectedEvent event){
-        LOGGER.info("New connection");
+        LOGGER.info("New connection at: " + new Timestamp(event.getTimestamp()));
     }
 
     @EventListener

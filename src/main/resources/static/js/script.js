@@ -13,14 +13,18 @@ const connect = (event) => {
         const chatPage = document.querySelector('#chat-page')
         chatPage.classList.remove('hide')
 
-        const socket = new SockJS('/chat-example')
+        /* Allows communication with the spring backend with
+         sockJS allowing cross domain communincation. Additionally,
+         Stomp allows messages to be sent to its destinaton
+         */
+        const socket = new SockJS('/simple_chat')
         stompClient = Stomp.over(socket)
         stompClient.connect({}, onConnected, onError)
     }
     event.preventDefault()
 }
 
-const onConnected = () => {
+const onConnected = () => { //Connect to backend endpoints
     stompClient.subscribe('/topic/public', onMessageReceived)
     stompClient.send("/app/chat.newUser",
         {},
@@ -30,16 +34,19 @@ const onConnected = () => {
     status.className = 'hide'
 }
 
-const onError = (error) => {
+const onError = (error) => {  // Server error message
     const status = document.querySelector('#status')
     status.innerHTML = 'Could not find the connection, try refreshing.'
     status.style.color = 'red'
 }
 
-const sendMessage = (event) => {
+const sendMessage = (event) => { // sends message
     const messageInput = document.querySelector('#message')
     const messageContent = messageInput.value.trim()
 
+    /* if messageContent && stompClient are true then
+    build chatMessage object.
+     */
     if (messageContent && stompClient) {
         const chatMessage = {
             sender: username,
@@ -47,6 +54,8 @@ const sendMessage = (event) => {
             type: 'CHAT',
             time: moment().calendar()
         }
+
+        //send message object as json
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage))
         messageInput.value = ''
     }
@@ -54,7 +63,10 @@ const sendMessage = (event) => {
 }
 
 
+
+//use payload to update html
 const onMessageReceived = (payload) => {
+
     const message = JSON.parse(payload.body);
 
     const chatCard = document.createElement('div')
@@ -105,6 +117,7 @@ const onMessageReceived = (payload) => {
     chat.scrollTop = chat.scrollHeight
 }
 
+
 const hashCode = (str) => {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
@@ -113,7 +126,7 @@ const hashCode = (str) => {
     return hash
 }
 
-
+//using hashcode method to assign colors to differnt usernames
 const getAvatarColor = (messageSender) => {
     const colours = ['#2196F3', '#32c787', '#1BC6B4', '#A1B4C4']
     const index = Math.abs(hashCode(messageSender) % colours.length)

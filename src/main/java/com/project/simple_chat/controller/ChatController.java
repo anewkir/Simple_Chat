@@ -11,6 +11,9 @@ import org.springframework.web.socket.WebSocketMessage;
 @Controller
 public class ChatController {
 
+
+
+
    @MessageMapping("/chat.send")
    @SendTo("/topic/public")
    public Message sendMessage(@Payload Message webSocketMessage){
